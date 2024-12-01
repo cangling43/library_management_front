@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch All Data from LeanCloud</title>
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.0.0/dist/av-min.js"></script>
+</head>
+<body>
+    <h1>Fetch All Data from LeanCloud</h1>
+    <button id="fetchDataBtn">Fetch Data</button>
+    <pre id="results"></pre>
+
+    <script>
+        (function () {
+            // Initialize LeanCloud
+            window.AV.init({
+                appId: 'n87e56Pd4vy8Mc5lBhD5zcI8-gzGzoHsz',
+                appKey: 'ewwupYEWGyfQU6FioTg6IhCQ',
+                serverURLs: "https://n87e56pd.lc-cn-n1-shared.com"
+            });
+
+            // Function to fetch all data with pagination
+            function fetchAllData() {
+                const Forms = window.AV.Object.extend("involvedMembers");
+                const query = new window.AV.Query(Forms);
+                const pageSize = 100; // Number of items per page
+                let skip = 0;
+                let allResults = [];
+
+                function fetchPage() {
+                    query.limit(pageSize);
+                    query.skip(skip);
+
+                    return query.find().then((results) => {
+                        if (results.length > 0) {
+                            allResults = allResults.concat(results.map(item => item.toJSON()));
+                            skip += pageSize; // Update skip value for next page
+                            return fetchPage(); // Fetch the next page
+                        } else {
+                            // All pages have been fetched
+                            return allResults;
+                        }
+                    }).catch((error) => {
+                        console.error('Error fetching data:', error);
+                        throw error;
+                    });
+                }
+
+                fetchPage().then((data) => {
+                    const resultsElement = document.querySelector('#results');
+                    resultsElement.textContent = JSON.stringify(data, null, 2);
+                }).catch((error) => {
+                    const resultsElement = document.querySelector('#results');
+                    resultsElement.textContent = 'Error fetching data. Check console for details.';
+                });
+            }
+
+            // Add event listener to the button
+            document.querySelector('#fetchDataBtn').addEventListener('click', fetchAllData);
+        })();
+    </script>
+</body>
+</html>

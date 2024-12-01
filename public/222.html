@@ -1,0 +1,31 @@
+<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.0.0/dist/av-min.js"></script>
+<script>
+    (function() {
+        // 初始化LeanCloud
+        window.AV.init({
+            appId: 'n87e56Pd4vy8Mc5lBhD5zcI8-gzGzoHsz',
+            appKey: 'ewwupYEWGyfQU6FioTg6IhCQ',
+            serverURLs: "https://n87e56pd.lc-cn-n1-shared.com"
+        });
+
+        // 查询函数
+        async function fetchAllUsers() {
+            try {
+                const query = new window.AV.Query('involvedMembers');
+                query.limit(1000); // 设置查询返回的数据数量上限
+                const results = await query.find();
+                return results.map(result => result.toJSON());
+            } catch (err) {
+                console.error('Error fetching users:', err);
+                return [];
+            }
+        }
+
+        // 调用查询函数并处理结果
+        fetchAllUsers().then(users => {
+            console.log('All users:', users);
+            // 这里可以对users数据进行进一步处理，如在页面上显示
+        });
+
+    })();
+</script>
